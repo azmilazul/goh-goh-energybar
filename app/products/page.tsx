@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import ProductCard from '@/components/ProductCard'
 import ShoppingCart from '@/components/ShoppingCart'
-import { Product, CartItem } from '@/lib/types'
+import type { Product, CartItem } from '@/lib/types'
 import { ShoppingCart as ShoppingCartIcon } from 'lucide-react'
 
 export default function ProductsPage() {
@@ -11,6 +11,7 @@ export default function ProductsPage() {
   const [cart, setCart] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchProducts()
@@ -18,11 +19,48 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
+      setIsLoading(true)
+      setError(null)
       const response = await fetch('/api/products')
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch products')
+      }
+      
       const data = await response.json()
-      setProducts(data || [])
+      setProducts(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Error fetching products:', error)
+      setError('Gagal memuat produk. Silakan coba lagi.')
+      setProducts([
+        {
+          id: '1',
+          name: 'Goh-Goh™ Classic',
+          description: 'Bar klasik dengan oat, almond, dan madu alami',
+          price: 29900,
+          ingredients: ['Oat', 'Almond', 'Madu', 'Buah Kering'],
+          category: 'energy-bar',
+          stock: 50,
+        },
+        {
+          id: '2',
+          name: 'Goh-Goh™ Protein Plus',
+          description: 'Diperkaya dengan protein untuk performa maksimal',
+          price: 34900,
+          ingredients: ['Oat', 'Kacang Tanah', 'Protein Isolat', 'Gula Kelapa'],
+          category: 'energy-bar',
+          stock: 40,
+        },
+        {
+          id: '3',
+          name: 'Goh-Goh™ Fruity',
+          description: 'Kombinasi buah-buahan dan biji-bijian pilihan',
+          price: 29900,
+          ingredients: ['Oat', 'Cranberry', 'Blueberry', 'Biji Bunga Matahari'],
+          category: 'energy-bar',
+          stock: 45,
+        },
+      ])
     } finally {
       setIsLoading(false)
     }
@@ -40,7 +78,6 @@ export default function ProductsPage() {
       }
       return [...prevCart, item]
     })
-    alert('Produk ditambahkan ke keranjang!')
   }
 
   const handleRemoveItem = (productId: string) => {
@@ -97,6 +134,13 @@ export default function ProductsPage() {
           <p className="text-xl text-gray-600 mb-12">
             Pilihan energy bars berkualitas premium untuk gaya hidup aktif Anda
           </p>
+
+          {error && (
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-8">
+              <p className="font-semibold">⚠️ {error}</p>
+              <p className="text-sm mt-1">Menampilkan produk sample. Silakan setup Supabase untuk produk real.</p>
+            </div>
+          )}
 
           {isLoading ? (
             <div className="text-center py-12">

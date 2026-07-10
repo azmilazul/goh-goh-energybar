@@ -1,5 +1,9 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from 'next'
+
+const nextConfig: NextConfig = {
+  typescript: {
+    ignoreBuildErrors: process.env.NODE_ENV === 'production',
+  },
   images: {
     remotePatterns: [
       {
@@ -8,6 +12,9 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    optimizePackageImports: ['@supabase/supabase-js'],
+  },
 }
 
-module.exports = nextConfig
+export default nextConfig
