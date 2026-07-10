@@ -1,21 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle } from 'lucide-react'
 
-export default function SuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams()
-  const [orderDetails, setOrderDetails] = useState<any>(null)
-
-  useEffect(() => {
-    const sessionId = searchParams.get('session_id')
-    if (sessionId) {
-      // Fetch order details from your API if needed
-      setOrderDetails({ sessionId })
-    }
-  }, [searchParams])
+  const sessionId = searchParams.get('session_id')
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center">
@@ -29,10 +21,10 @@ export default function SuccessPage() {
           Terima kasih telah berbelanja di Goh-Goh™. Pesanan Anda sedang diproses.
         </p>
 
-        {orderDetails?.sessionId && (
+        {sessionId && (
           <div className="bg-gray-100 p-4 rounded-lg mb-8">
             <p className="text-sm text-gray-600">ID Transaksi:</p>
-            <p className="text-sm font-mono break-all">{orderDetails.sessionId}</p>
+            <p className="text-sm font-mono break-all">{sessionId}</p>
           </div>
         )}
 
@@ -50,5 +42,13 @@ export default function SuccessPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <SuccessContent />
+    </Suspense>
   )
 }
